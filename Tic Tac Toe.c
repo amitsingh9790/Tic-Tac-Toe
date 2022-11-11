@@ -1,361 +1,397 @@
 #include<stdio.h>
 #include<conio.h>
-void display();
-int tic[3][3]={{1,2,3},{4,5,6},{7,8,9}};
-int main()
+
+char square[3][3] = {
+                     {'1','2','3'},
+                     {'4','5','6'},
+                     {'7','8','9'}
+                    };
+
+int board[3][3] = {
+                     {2,2,2},
+                     {2,2,2},
+                     {2,2,2}
+                  };
+int player = 0, i ,choice , isEvil = 0 , isEvilMarked = 0 , reset = 0 , flag = 0, withPlayer = 0;
+char mark;
+void resetBoard();
+int checkWinner();
+void drawBoard();
+void selectPlayer();
+void enterChoice();
+void selectMark();
+void fillMark();
+void gameStatus();
+int isPlaceEmpty();
+
+void findComputerMove()
 {
-    menu();
-}
-void display()
-{
-    printf("\n\n\n#####################################Tic Tac Toe#####################################");
-    printf("\nPlayer 1 X\n");
-    printf("Player 2 O\n");
-    printf(" ");
-   {
-    int i, j;
-    printf("-------------\n");
-    for (i = 0; i < 3; i++)
+    int row,col,selectedRow , selectedCol,i,j , multi = 1, maxMul =1;
+    for(row =0 ; row <3 ; row++)
     {
-        printf("|");
-        for (j = 0; j < 3; j++)
+        for(col =0; col <3; col++)
         {
-            if (tic[i][j] != 'O')
+            // reset
+           // maxMul = 1;
+            if(board[row][col] == 2)
             {
-                if (tic[i][j] != 'X')
-                    printf("%2d | ", tic[i][j]);
-                else
-                    printf(" X | ");
+               board[row][col] = 3;
+               multi = board[row][0]* board[row][1]*board[row][2];
+               // Computer Win Condition or Saving opponent win
+               if( multi == 27)
+               {
+                   square[row][col] = 'X';
+                   return;
+               } else if(maxMul < multi)
+               {
+                   maxMul = multi;
+                   selectedRow = row;
+                   selectedCol = col;
+               }
+
+               multi = board[0][col]* board[1][col]*board[2][col];
+               // Computer Win Condition or Saving opponent win
+               if( multi == 27)
+               {
+                   square[row][col] = 'X';
+                   return;
+               } else if(maxMul < multi)
+               {
+                   maxMul = multi;
+                   selectedRow = row;
+                   selectedCol = col;
+               }
+
+               if(row == col)
+               {
+                multi = board[0][0]* board[1][1]*board[2][2];
+               // Computer Win Condition or Saving opponent win
+                if( multi == 27)
+                 {
+                   square[row][col] = 'X';
+                   return;
+                 }else if(maxMul < multi)
+                 {
+                   maxMul = multi;
+                   selectedRow = row;
+                   selectedCol = col;
+                 }
+               }
+
+                 if((row ==0 && col ==2) || (row ==2 && col ==0) || (row == 1 && col ==1))
+                 {
+
+                    multi = board[0][2]* board[1][1]*board[2][0];
+               // Computer Win Condition or Saving opponent win
+                    if( multi == 27)
+                    {
+                    square[row][col] = 'X';
+                    return;
+                    } else if(maxMul < multi)
+                    {
+                    maxMul = multi;
+                    selectedRow = row;
+                    selectedCol = col;
+                    }
+                 }
+
+                board[row][col] = 2;
             }
-
-            else
-                printf(" O | ");
         }
-        printf("\n");
     }
 
-    printf("--------------\n");
-}
-}
-void menu()
-{
-    int x;
-    printf("Enter your choice\n1. Want to play with Smart Computer\n2. Want to play with Evil Computer\n3. Want to play with player\n4. Exit\n");
-    scanf("%d",&x);
-    switch(x)
+    // check opponent win
+     for(row =0 ; row <3 ; row++)
     {
-        case 1:
-            Smart_Com(tic);
-            break;
-        case 2:
-           // Evil_Com(tic);
-            break;
-        case 3:
-             Player(tic);
-            break;
-        case 4:
-            return 0;
+        for(col =0; col <3; col++)
+        {
+            if(board[row][col] == 2)
+            {
+               board[row][col] = 3;
+               multi = board[row][0]* board[row][1]*board[row][2];
+               // Computer Win Condition or Saving opponent win
+               if(multi == 3)
+               {
+			       reset = 1;
+                   square[row][col] = 'X';
+
+                   if(isEvil == 0)
+                    return;
+                   else
+                    isEvilMarked = 1;
+               }
+
+               multi = board[0][col]* board[1][col]*board[2][col];
+               if(multi == 3)
+               {   reset = 1;
+                   square[row][col] = 'X';
+                   if(isEvil == 0)
+                    return;
+                   else
+                    isEvilMarked = 1;
+               }
+
+               if(row == col)
+               {
+                multi = board[0][0]* board[1][1]*board[2][2];
+                if( multi == 3)
+                 { reset = 1;
+                   square[row][col] = 'X';
+                   if(isEvil == 0)
+                    return;
+                   else
+                     isEvilMarked = 1;
+                 }
+               }
+
+                 if((row ==0 && col ==2) || (row ==2 && col ==0) || (row == 1 && col ==1))
+                 {
+
+                    multi = board[0][2]* board[1][1]*board[2][0];
+                    if(multi == 3)
+                    {
+                     reset = 1;
+                     square[row][col] = 'X';
+                     if(isEvil == 0)
+                      return;
+                     else
+                      isEvilMarked = 1;
+                    }
+                 }
+                 if(isEvilMarked == 0)
+                   board[row][col] = 2;
+
+                   isEvilMarked = 0;
+            }
+        }
+    }
+        if(reset == 0)
+        {
+          board[selectedRow][selectedCol] = 3;
+          square[selectedRow][selectedCol] = 'X';
+        }
+        else
+           reset = 0;
+}
+
+
+int isPlaceEmpty(int row, int col)
+{
+    if(square[row][col] != 'X' && square[row][col] !='O')
+        return 1;
+    else
+        return 0;
+}
+
+void enterChoice()
+{
+    printf("Player %d, Enter Marking Place : ",player);
+    fflush(stdin);
+    scanf("%d",&choice);
+    fflush(stdin);
+}
+
+void selectPlayer()
+{
+   player = !player;
+}
+
+void selectMark()
+{
+    mark = (player == 1) ? 'O' : 'X';
+}
+
+void gameStatus()
+{
+    if(i==1){
+		printf("Player %d won",--player);
+	}
+	else {
+		printf("Game draw");
+	}
+
+	 printf("\n\n#####################################################\n\n");
+}
+
+int checkWinner(){
+    // Checking Horizontal match
+    int row = 0 , col = 0 , placeFilled = 1;
+    for(row = 0 ; row < 3 ; row++)
+    {
+        if(square[row][0] == square[row][1] && square[row][1] == square[row][2])
+		return 1;
     }
 
+    // checking vertical match
+    for(col = 0 ; col < 3 ; col++)
+    {
+        if(square[0][col] == square[1][col] && square[1][col] == square[2][col])
+		return 1;
+    }
+
+	// Checking diagonal match
+    if(square[0][0] == square[1][1] && square[1][1] == square[2][2])
+		return 1;
+	else if(square[0][2] == square[1][1] && square[1][1] == square[2][0])
+		return 1;
+
+    // checking that no place is vacant now
+
+     for(row = 0 ; row < 3 ; row++)
+    {
+        for(col = 0 ; col < 3 ; col++)
+        {
+            if(isPlaceEmpty(row,col))
+                {
+                    placeFilled = 0;
+
+                }
+        }
+    }
+    // placeFilled == 0 means board not filled completely
+    // Return 0 if board is filled completely else return -1
+ 	if(placeFilled == 1)
+		return 0;
+	else
+		return -1;
 }
-void Player()
+
+void drawBoard(){
+    // Clearing Screen for re-drawing new board
+
+    int row = 0;
+	system("cls");
+	printf("\n\n#################### Tic Tac Toe ####################\n\n");
+	printf("First Player X \nSecond Player O \n\n\n");
+
+	for(row = 0 ; row < 3 ; row++)
+    {
+           printf("     |     |     \n");
+	       printf("  %c  |  %c  |  %c  \n",square[row][0],square[row][1],square[row][2]);
+	       printf("_____|_____|_____\n");
+    }
+
+	printf("\n\n#####################################################\n\n");
+}
+
+
+
+
+void fillMark()
 {
-    int x=1,y=1;
+    int row = 0 , col = 0;
+    int place = 0;
+    int flag = 0;
+    for(row = 0 ; row < 3 ; row++)
+    {
+        for(col = 0 ; col < 3 ; col++)
+        {
+            // Formula used to find the place.
+            // How this formula comes will be explained in class
+            place = ((row * 3) + (col +1));
+
+            // checking the choice and place is empty or not
+            if((choice == place) && isPlaceEmpty(row,col))
+            {
+                 square[row][col] = mark;
+                 board[row][col] = 1;
+                 flag = 1; // Mark done
+            }
+        }
+    }
+
+    // Mark not done means Invalid option
+    if(flag == 0)
+    {
+      printf("\n\n#####################################################\n\n");
+      printf("Place is Either already used or incorrect !");
+      getch();
+      if(withPlayer == 0)
+      player--;
+    }else{
+      i = checkWinner();
+      if(withPlayer == 0)
+        player++;
+      else
+        selectPlayer();
+     }
+}
+
+void resetBoard()
+{
+    int row, col;
+    char a = '1';
+    for(row = 0 ; row < 3 ; row++)
+    {
+        for(col = 0 ; col < 3 ; col++)
+        {
+
+        square[row][col] = a++;
+        board[row][col] = 2;
+        }
+    }
+ player = 0,isEvil = 0 , isEvilMarked = 0 , reset = 0 , flag = 0, withPlayer = 0;
+}
+
+int main(){
+    int choice ;
     while(1)
     {
+        system("cls");
+        resetBoard();
+        printf("Enter your choice\n");
+        printf("1. Want to play with Smart Computer\n");
+        printf("2. Want to play with Evil Computer\n");
+        printf("3. Want to play with player\n");
+        printf("4. Exit\n");
+        scanf("%d",&choice);
 
-        x=check_Player_2(tic);
-        y=check_chance(tic);
-        if(y==2)
+        switch(choice)
         {
+            case 1 :
+            case 2 :  isEvil = (choice == 1 ) ? 0 : 1;
+                       do {
+                        drawBoard();
+                        selectPlayer();
+                        if(player == 0)
+                        {
+                            findComputerMove();
+                            i = checkWinner();
+                            if(i == 1)
+                            player++;
+                        }else{
+                            enterChoice();
+                            selectMark();
+                            fillMark();
+                        }
+                        }while(i == -1);
 
-            system("cls");
-                display(tic);
-                printf("\n#####################################################################################\n\nDraw\n\n#####################################################################################");
-                break;;
-        }
-        if(x)
-            Player_1(tic);
-        else
-            {
-            system("cls");
-                display(tic);
-                printf("\n#####################################################################################\n\nPlayer 2 Won\n\n#####################################################################################");
-                break;;
-            }
-        x=check_Player_1(tic);
-        y=check_chance(tic);
-        if(y==2)
-        {
+                        drawBoard();
+                        gameStatus();
+                        getchar();
+                        break;
 
-            system("cls");
-                display(tic);
-                printf("\n#####################################################################################\n\nDraw\n\n#####################################################################################");
-                break;;
-        }
-        if(x)
-            Player_2(tic);
-        else
-            {
-                system("cls");
-                display(tic);
-                printf("\n#####################################################################################\n\nPlayer 1 Won\n\n#####################################################################################");
+            case 3 :
+                       withPlayer = 1;
+                       selectPlayer();
+                       selectMark();
+                     do {
+                        drawBoard();
+                        selectMark();
+                        enterChoice();
+                        fillMark();
+                        }while(i == -1);
+                        drawBoard();
+                        gameStatus();
+                        getchar();
                 break;
-            }
-    }
-}
-void Player_1()
-{
-    system("cls");
-    display(tic);
-    int num;
-    printf("\nPlayer X, Enter Marking Place :");
-    scanf("%d",&num);
-    switch(num)
-    {
-    case 1:
-       if(tic[0][0]=='X' ^ tic[0][0]=='O')
-            Player_1();
-       else
-           tic[0][0]='X';
-           break;
-    case 2:
-       if(tic[0][1]=='X' ^ tic[0][1]=='O')
-            Player_1();
-       else
-           tic[0][1]='X';
-           break;
-    case 3:
-       if(tic[0][2]=='X' ^ tic[0][2]=='O')
-            Player_1();
-       else
-            tic[0][2]='X';
-           break;
-    case 4:
-       if(tic[1][0]=='X' ^ tic[1][0]=='O')
-            Player_1();
-       else
-           tic[1][0]='X';
-           break;
-    case 5:
-       if(tic[1][1]=='X' ^ tic[1][1]=='O')
-            Player_1();
-       else
-           tic[1][1]='X';
-           break;
-    case 6:
-       if(tic[1][2]=='X' ^ tic[1][2]=='O')
-            Player_1();
-       else
-           tic[1][2]='X';
-           break;
-    case 7:
-       if(tic[2][0]=='X' ^ tic[2][0]=='O')
-            Player_1();
-       else
-           tic[2][0]='X';
-           break;
-    case 8:
-       if(tic[2][1]=='X' ^ tic[2][1]=='O')
-            Player_1();
-       else
-           tic[2][1]='X';
-           break;
-       case 9:
-       if(tic[2][2]=='X' ^ tic[2][2]=='O')
-            Player_1();
-       else
-           tic[2][2]='X';
-           break;
-    }
-}
-void Player_2()
-{
+            case 4 :
+                exit(0);
+                break;
+            default: printf("Invalid choice\n");
+        }
 
-    system("cls");
-    display(tic);
-    int num;
-    printf("\nPlayer O, Enter Marking Place :");
-    scanf("%d",&num);
-    switch(num)
-    {
-    case 1:
-       if(tic[0][0]=='X' ^ tic[0][0]=='O')
+    }
 
-            Player_2();
-       else
-           tic[0][0]='O';
-           break;
-    case 2:
-       if(tic[0][1]=='X' ^ tic[0][1]=='O')
-            Player_2();
-       else
-           tic[0][1]='O';
-           break;
-    case 3:
-       if(tic[0][2]=='X' ^ tic[0][2]=='O')
-            Player_2();
-       else
-            tic[0][2]='O';
-           break;
-    case 4:
-       if(tic[1][0]=='X' ^ tic[1][0]=='O')
-            Player_2();
-       else
-           tic[1][0]='O';
-           break;
-      case 5:
-       if(tic[1][1]=='X' ^ tic[1][1]=='O')
-            Player_2(tic);
-       else
-           tic[1][1]='O';
-           break;;
-    case 6:
-       if(tic[1][2]=='X' ^ tic[1][2]=='O')
-            Player_2();
-       else
-           tic[1][2]='O';
-           break;
-    case 7:
-       if(tic[2][0]=='X' ^ tic[2][0]=='O')
-            Player_2();
-       else
-           tic[2][0]='O';
-           break;
-    case 8:
-       if(tic[2][1]=='X' ^ tic[2][1]=='O')
-            Player_2();
-       else
-           tic[2][1]='O';
-           break;
-       case 9:
-       if(tic[2][2]=='X' ^ tic[2][2]=='O')
-            Player_2();
-       else
-           tic[2][2]='O';
-           break;
-    }
-}
-int check_Player_1()
-{
-    if(tic[0][0]=='X')
-    {
-        if(tic[0][1]=='X')
-        {
-            if(tic[0][2]=='X')
-                return 0;
-        }
-        if(tic[1][1]=='X')
-        {
-            if(tic[2][2]=='X')
-                return 0;
-        }
-        if(tic[1][0]=='X')
-        {
-            if(tic[2][0]=='X')
-                return 0;
-        }
-    }
-    if(tic[2][2]=='X')
-    {
-        if(tic[2][1]=='X')
-        {
-            if(tic[2][0]=='X')
-                return 0;
-        }
-        if(tic[1][2]=='X')
-        {
-            if(tic[0][2]=='X')
-                return 0;
-        }
-    }
-    if(tic[0][2]=='X')
-    {
-        if(tic[1][1]=='X')
-            {if(tic[2][0]=='X')
-              return 0;}
-    }
-    if(tic[0][1]=='X')
-    {
-        if(tic[1][1]=='X')
-            if(tic[2][1]=='X')
-            return 0;
-    }
-    if(tic[1][0]=='X')
-    {
-        if(tic[1][1]=='X')
-            if(tic[1][2]=='X')
-            return 0;
-    }
-}
-
-int check_Player_2()
-{
-    if(tic[0][0]=='O')
-    {
-        if(tic[0][1]=='O')
-        {
-            if(tic[0][2]=='O')
-                return 0;
-        }
-        if(tic[1][1]=='O')
-        {
-            if(tic[2][2]=='O')
-                return 0;
-        }
-        if(tic[1][0]=='O')
-        {
-            if(tic[2][0]=='O')
-                return 0;
-        }
-    }
-    if(tic[2][2]=='O')
-    {
-        if(tic[2][1]=='O')
-        {
-            if(tic[2][0]=='O')
-                return 0;
-        }
-        if(tic[1][2]=='O')
-        {
-            if(tic[0][2]=='O')
-                return 0;
-        }
-    }
-    if(tic[0][2]=='O')
-    {
-        if(tic[1][1]=='O')
-            if(tic[2][0]=='O')
-              return 0;
-    }
-    if(tic[0][1]=='O')
-    {
-        if(tic[1][1]=='O')
-            if(tic[2][1]=='O')
-            return 0;
-    }
-    if(tic[1][0]=='O')
-    {
-        if(tic[1][1]=='O')
-            if(tic[1][2]=='O')
-            return 0;
-    }
-}
-int check_chance()
-{
-        int count=0;
-        for(int i=0; i<=2 ;i++)
-        for(int j=0; j<=2 ;j++)
-        {
-            if(tic[i][j] == 'X' ^ tic[i][j]== 'O')
-                count++;
-            else
-                return 1;
-        }
-        if(count==9)
-            return 2;
-}
-Smart_Com()
-{
-printf(" ");
+	return 0;
 }
